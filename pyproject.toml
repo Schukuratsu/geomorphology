@@ -6,7 +6,7 @@ authors = ["Lucas Silva Ennes <lucassilvaennes@gmail.com>"]
 
 [tool.poetry.scripts]
 dem-test = "code.DEM:main"
-filter-test = "code.filters:main"
+histogram = "code.histogramExtractor:main"
 
 [tool.poetry.dependencies]
 python = "3.8"
