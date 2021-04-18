@@ -1,9 +1,29 @@
+# poetry run histogram -o 0 ; poetry run histogram -o 1 ; poetry run histogram -o 2 ; poetry run histogram -o 3 ; poetry run histogram -o 4 ; poetry run histogram -o 5
+
 from matplotlib import pyplot as plt
+import getopt
+import sys
 # from scipy import ndimage
 from .DEM import DEM
 import numpy as np
 import cv2
 import pandas as pd
+
+### argument handler
+option = ""
+
+errorMessage = "poetry run histogram -o <optionIndex>"
+try:
+    opts, args = getopt.getopt(sys.argv[1:], "ho:", ["option="])
+except getopt.GetoptError:
+    print(errorMessage)
+    sys.exit(2)
+for opt, arg in opts:
+    if opt == "-h":
+        print(errorMessage)
+        sys.exit()
+    elif opt in ("-o", "--option"):
+        option = int(arg)
 
 
 # def gaussian_filter(arr, sigma=3):
@@ -37,7 +57,7 @@ def plotHist(arr, bins=None, limits=None, show=True):
         limits = [minValue, maxValue]
     if not bins:
         bins = limits[1] - limits[0]
-    hist = plt.hist(arr.ravel(), bins, limits)
+    hist, bins, patches = plt.hist(arr.ravel(), bins, limits)
     if show:
         plt.show()
     return hist
@@ -60,51 +80,64 @@ def getSimpleRadius(mat, center, nullValue=-1):
 
 def main():
 
-    print('initiating histogram extractor.')
+    print("initiating histogram extractor.")
 
     demFileName = "./assets/dems/S028-030_W053-055.tif"
 
     optionsArray = [
-         {
-            #  ARENITO
+        # 0 - arenito raw
+        {
             "segmentedFileName": "./assets/maps/Arenito recortado (completo).tif",
             "seedsFileName": "./assets/seeds/Centroides Arenito (completo).csv",
-            # # raw
-            # "outputHistogramFileName": "./assets/histograms/Arenito(raw).csv",
-            # "limits": [0,1000],
-            # # laplacian4
-            # "outputHistogramFileName": "./assets/histograms/Arenito(laplacian4).csv",
-            # "heightMapFilter": laplacian4,
-            # "limits": [-500,500],
-            # laplacian8
+            "outputHistogramFileName": "./assets/histograms/Arenito(raw).csv",
+            "limits": [0, 1000],
+        },
+        # 1 - arenito laplacian4
+        {
+            "segmentedFileName": "./assets/maps/Arenito recortado (completo).tif",
+            "seedsFileName": "./assets/seeds/Centroides Arenito (completo).csv",
+            "outputHistogramFileName": "./assets/histograms/Arenito(laplacian4).csv",
+            "heightMapFilter": laplacian4,
+            "limits": [-500, 500],
+        },
+        # 2 - arenito laplacian8
+        {
+            "segmentedFileName": "./assets/maps/Arenito recortado (completo).tif",
+            "seedsFileName": "./assets/seeds/Centroides Arenito (completo).csv",
             "outputHistogramFileName": "./assets/histograms/Arenito(laplacian8).csv",
             "heightMapFilter": laplacian8,
-            "limits": [-500,500],
+            "limits": [-500, 500],
         },
-        # { 
-        #     # BASALTO
-        #     "segmentedFileName": "./assets/maps/Basalto recortado.tif",
-        #     "seedsFileName": "./assets/seeds/Centroides Basalto.csv",
-        #     # # raw
-        #     # "outputHistogramFileName": "./assets/histograms/Basalto(raw).csv",
-        #     # "limits": [0,1000],
-        #     # laplacian4
-        #     # "outputHistogramFileName": "./assets/histograms/Basalto(laplacian4).csv",
-        #     # "heightMapFilter": laplacian4,
-        #     # "limits": [-500,500],
-        #     # laplacian8
-        #     "outputHistogramFileName": "./assets/histograms/Basalto(laplacian8).csv",
-        #     "heightMapFilter": laplacian8,
-        #     "limits": [-500,500],
-        # },
+        # 3 - arenito raw
+        {
+            "segmentedFileName": "./assets/maps/Basalto recortado.tif",
+            "seedsFileName": "./assets/seeds/Centroides Basalto.csv",
+            "outputHistogramFileName": "./assets/histograms/Basalto(raw).csv",
+            "limits": [0, 1000],
+        },
+        # 4 - arenito laplacian4
+        {
+            "segmentedFileName": "./assets/maps/Basalto recortado.tif",
+            "seedsFileName": "./assets/seeds/Centroides Basalto.csv",
+            "outputHistogramFileName": "./assets/histograms/Basalto(laplacian4).csv",
+            "heightMapFilter": laplacian4,
+            "limits": [-500, 500],
+        },
+        # 5 - arenito laplacian8
+        {
+            "segmentedFileName": "./assets/maps/Basalto recortado.tif",
+            "seedsFileName": "./assets/seeds/Centroides Basalto.csv",
+            "outputHistogramFileName": "./assets/histograms/Basalto(laplacian8).csv",
+            "heightMapFilter": laplacian8,
+            "limits": [-500, 500],
+        },
     ]
 
     print('reading main DEM file "{}"...'.format(demFileName))
     dem = DEM(demFileName)
     demHeightMap = dem.getNumpyHeightMap()
 
-
-    for options in optionsArray:
+    for options in [optionsArray[option]]:
 
         print('reading segmented DEM file "{}"...'.format(options["segmentedFileName"]))
         segmentedMap = DEM(options["segmentedFileName"])
@@ -113,12 +146,15 @@ def main():
         print('reading seeds file "{}"...'.format(options["seedsFileName"]))
         seeds = pd.read_csv(options["seedsFileName"], ",")
 
-        length = seeds.values.shape[0]
+        cols = seeds.values.shape[0]
+        rows = options["limits"][1] - options["limits"][0]
 
-        segmentedHistograms = np.empty((options['limits'][1]-options['limits'][0], length))
+        segmentedHistograms = np.empty((rows, cols))
+        # min, max, average, std dev
+        segmentedData = np.empty((4, cols))
 
-        print('generating histograms...')
-        for seedIndex in range(length):
+        print("generating histograms...")
+        for seedIndex in range(cols):
             seedName = seeds.values[seedIndex, 1]
             seedDegreesX = seeds.values[seedIndex, 3]
             seedDegreesY = seeds.values[seedIndex, 4]
@@ -141,14 +177,64 @@ def main():
             # print(np.max(segmentedArea), np.min(segmentedArea))
             # showImg(segmentedArea, console=True)
 
-            n, bins, patches = plotHist(segmentedArea, limits=options['limits'], show=False)
+            hist = plotHist(segmentedArea, limits=options["limits"], show=False)
 
-            segmentedHistograms[:, seedIndex] = np.array(n)
+            histogram = np.array(hist)
+            numberOfPixels = np.sum(histogram)
+            estatisticalDistribution = np.divide(histogram, numberOfPixels)
 
-        print('saving histograms to file "{}"...'.format(options["outputHistogramFileName"]))
-        histogramsDF = pd.DataFrame(segmentedHistograms)
+            segmentedHistograms[:, seedIndex] = estatisticalDistribution
+
+            minValue = np.min(segmentedArea)
+            maxValue = np.max(segmentedArea)
+            meanValue = np.mean(segmentedArea)
+            stdValue = np.std(segmentedArea)
+
+            segmentedData[:, seedIndex] = np.array(
+                [minValue, maxValue, meanValue, stdValue]
+            )
+
+        # adds labels to data
+        indexedData = np.hstack(
+            (
+                np.array([["min"], ["max"], ["mean"], ["std"]]),
+                segmentedData,
+            )
+        )
+
+        # adds labels to histogram values
+        indexedHistograms = np.hstack(
+            (
+                np.reshape(
+                    np.arange(options["limits"][0], options["limits"][1]), (rows, 1)
+                ),
+                segmentedHistograms,
+            )
+        )
+
+        # merges data and histograms
+        mergedData = np.vstack(
+            (
+                indexedData,
+                indexedHistograms,
+            )
+        )
+
+        # adds index header label
+        header = np.concatenate((np.array(["index"]), seeds.values[:, 1].flatten()))
+
+        histogramsDF = pd.DataFrame(mergedData)
+
+        print(
+            'saving histograms to file "{}"...'.format(
+                options["outputHistogramFileName"]
+            )
+        )
+
         histogramsDF.to_csv(
-            options["outputHistogramFileName"], header=seeds.values[:, 1]
+            options["outputHistogramFileName"],
+            header=header,
+            index=False,
         )
 
         if segmentedMap:
