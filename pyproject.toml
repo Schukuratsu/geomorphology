@@ -7,6 +7,8 @@ authors = ["Lucas Silva Ennes <lucassilvaennes@gmail.com>"]
 [tool.poetry.scripts]
 dem-test = "code.DEM:main"
 histogram = "code.histogramExtractor:main"
+mean = "code.meanExtractor:main"
+k-means-mean = "code.k-means-mean:main"
 
 [tool.poetry.dependencies]
 python = "3.8.5"
