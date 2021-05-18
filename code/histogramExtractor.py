@@ -163,8 +163,6 @@ def main():
             )
 
             radius = getSimpleRadius(segmentedHeightMap, (seedY, seedX))
-            # # SIMPLE INNER SQUARE
-            # radius = round(np.floor(radius* np.sin(np.pi / 5)- 1))
 
             segmentedArea = demHeightMap[
                 seedY - radius : seedY + radius, seedX - radius : seedX + radius
@@ -180,10 +178,10 @@ def main():
             hist = plotHist(segmentedArea, limits=options["limits"], show=False)
 
             histogram = np.array(hist)
-            numberOfPixels = np.sum(histogram)
-            estatisticalDistribution = np.divide(histogram, numberOfPixels)
+            # numberOfPixels = np.sum(histogram)
+            # estatisticalDistribution = np.divide(histogram, numberOfPixels)
 
-            segmentedHistograms[:, seedIndex] = estatisticalDistribution
+            segmentedHistograms[:, seedIndex] = histogram
 
             minValue = np.min(segmentedArea)
             maxValue = np.max(segmentedArea)
