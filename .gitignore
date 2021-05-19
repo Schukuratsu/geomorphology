@@ -1,5 +1,6 @@
 assets/*
 packages/*
 estudo/*
+resultados/*
 .vscode/*
 **/*.pyc
