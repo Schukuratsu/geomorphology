@@ -42,11 +42,21 @@ def main():
             # # gera um valor para cada banda final
             result.append(
                 [
+                    # "raw_std",
                     np.std(segmentedAreaDF.values[:, 0]),
-                    np.std(segmentedAreaDF.values[:, 1]),
-                    np.std(segmentedAreaDF.values[:, 2]),
-                    np.std(segmentedAreaDF.values[:, 3]),
-                    np.std(segmentedAreaDF.values[:, 4]),
+                    # "sobelMag",
+                    np.mean(segmentedAreaDF.values[:, 4]),
+                    # # "sobelMag_std",
+                    # np.std(segmentedAreaDF.values[:, 4]),
+                    # # "sobelAng",
+                    # np.mean(segmentedAreaDF.values[:, 5]),
+                    # # "sobelAng_std",
+                    # np.std(segmentedAreaDF.values[:, 5]),
+                    # # "robertsAng",
+                    # np.mean(segmentedAreaDF.values[:, 9]),
+                    # # "robertsAng_std",
+                    # np.std(segmentedAreaDF.values[:, 9]),
+                    # "class",
                     classification,
                 ]
             )
@@ -55,10 +65,25 @@ def main():
     # header = [a for a in segmentedAreaDF.columns.values]
     # header.append("class")
     header = np.array(
-        ["raw_std", "laplacianCv2_std", "laplacian4_std", "laplacian8_std", "sobel_std", "class"]
+        [
+            "raw_std",
+            "sobelMag",
+            # "sobelMag_std",
+            # "sobelAng",
+            # "sobelAng_std",
+            # "robertsAng",
+            # "robertsAng_std",
+            "class",
+        ]
     )
     resultDF = pd.DataFrame(result, None, header)
-    sns.displot(resultDF, x="raw_std", y="laplacianCv2_std", hue="class", kind="kde")
+    print(resultDF)
+    g = sns.PairGrid(resultDF, hue="class")
+    g.map_upper(sns.histplot)
+    g.map_lower(sns.kdeplot)
+    g.map_diag(sns.histplot, kde=True)
+    g.add_legend()
+    # sns.pairplot(resultDF, hue="class", kind="kde", fill=True)
     plt.show()
 
 
