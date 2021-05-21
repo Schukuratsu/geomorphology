@@ -10,12 +10,47 @@ def raw(mat):
     return mat
 
 
-def sobel(mat):
+def sobelMag(mat):
     Gx = np.array([[-1, 0, +1], [-2, 0, +2], [-1, 0, +1]])
     Gy = np.array([[+1, +2, +1], [0, 0, 0], [-1, -2, -1]])
     SobelX = cv2.filter2D(mat, cv2.CV_16S, Gx)
     SobelY = cv2.filter2D(mat, cv2.CV_16S, Gy)
     return np.sqrt(np.add(np.square(SobelX), np.square(SobelY)))
+
+def sobelAng(mat):
+    Gx = np.array([[-1, 0, +1], [-2, 0, +2], [-1, 0, +1]])
+    Gy = np.array([[+1, +2, +1], [0, 0, 0], [-1, -2, -1]])
+    SobelX = cv2.filter2D(mat, cv2.CV_16S, Gx)
+    SobelY = cv2.filter2D(mat, cv2.CV_16S, Gy)
+    return np.arctan2(SobelY, SobelX)
+
+def prewittMag(mat):
+    Gx = np.array([[-1, 0, +1], [-1, 0, +1], [-1, 0, +1]])
+    Gy = np.array([[+1, +1, +1], [0, 0, 0], [-1, -1, -1]])
+    PrewittX = cv2.filter2D(mat, cv2.CV_16S, Gx)
+    PrewittY = cv2.filter2D(mat, cv2.CV_16S, Gy)
+    return np.sqrt(np.add(np.square(PrewittX), np.square(PrewittY)))
+
+def prewittAng(mat):
+    Gx = np.array([[-1, 0, +1], [-1, 0, +1], [-1, 0, +1]])
+    Gy = np.array([[+1, +1, +1], [0, 0, 0], [-1, -1, -1]])
+    PrewittX = cv2.filter2D(mat, cv2.CV_16S, Gx)
+    PrewittY = cv2.filter2D(mat, cv2.CV_16S, Gy)
+    return np.arctan2(PrewittY, PrewittX)
+
+def robertsMag(mat):
+    Gx = np.array([[0, +1], [-1, 0]])
+    Gy = np.array([[+1, 0], [0, -1]])
+    RobertsX = cv2.filter2D(mat, cv2.CV_16S, Gx)
+    RobertsY = cv2.filter2D(mat, cv2.CV_16S, Gy)
+    return np.sqrt(np.add(np.square(RobertsX), np.square(RobertsY)))
+
+def robertsAng(mat):
+    Gx = np.array([[0, +1], [-1, 0]])
+    Gy = np.array([[+1, 0], [0, -1]])
+    RobertsX = cv2.filter2D(mat, cv2.CV_16S, Gx)
+    RobertsY = cv2.filter2D(mat, cv2.CV_16S, Gy)
+    return np.arctan2(RobertsY, RobertsX)
 
 
 def laplacianCv2(mat):
@@ -50,8 +85,8 @@ def main():
     seedsFileName = "./assets/seeds/Centroides.csv"
 
     # configurações
-    filters = [raw, laplacianCv2, laplacian4, laplacian8, sobel]
-    filterNames = ["raw", "laplacianCv2", "laplacian4", "laplacian8", "sobel"]
+    filters = [raw, laplacianCv2, laplacian4, laplacian8, sobelMag, sobelAng, prewittMag, prewittAng, robertsMag, robertsAng]
+    filterNames = ["raw", "laplacianCv2", "laplacian4", "laplacian8", "sobelMag", "sobelAng", "prewittMag", "prewittAng", "robertsMag", "robertsAng"]
     seedsIndex = []
 
     # lendo arquivos
