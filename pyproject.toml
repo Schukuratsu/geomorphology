@@ -10,16 +10,21 @@ histogram = "code.histogramExtractor:main"
 radius = "code.radiusExtractor:main"
 testAttr = "code.testAttributeSpace:main"
 attrSpace = "code.attributeSpace:main"
+sobel = "code.sobel:main"
+sobelAng = "code.sobelAng:main"
 seed = "code.seedProcessor:main"
 mean = "code.meanExtractor:main"
 k-means = "code.k-means:main"
 graphics = "code.graphics:main"
 
 [tool.poetry.dependencies]
-python = "3.8.5"
+python = "3.8.2"
 pandas = "^1.2.3"
 numpy = "^1.20.1"
-GDAL = {file = "packages/GDAL-3.2.2-cp38-cp38-win32.whl"}
+GDAL = [
+  {file = "packages/GDAL-3.2.3-cp38-cp38-win_amd64.whl"},
+  {file = "packages/GDAL-3.2.3-cp38-cp38-win32.whl"},
+]
 scipy = "^1.6.2"
 opencv-python = "^4.5.1"
 matplotlib = "^3.3.4"
