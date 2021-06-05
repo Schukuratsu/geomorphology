@@ -28,6 +28,8 @@ def main():
 
     # configurações
     segmentedAreaFolder = "./assets/segmentedAreas"
+    # tamanho da janela
+    windowSize = 5
 
     # inicialização do resultado
     result = []
@@ -39,27 +41,78 @@ def main():
             segmentedAreaDF = pd.read_csv(os.path.join(folder, file))
             classification = file[:7]
 
-            # # gera um valor para cada banda final
-            result.append(
-                [
-                    # "raw_std",
-                    np.std(segmentedAreaDF.values[:, 0]),
-                    # "sobelMag",
-                    np.mean(segmentedAreaDF.values[:, 4]),
-                    # # "sobelMag_std",
-                    # np.std(segmentedAreaDF.values[:, 4]),
-                    # # "sobelAng",
-                    # np.mean(segmentedAreaDF.values[:, 5]),
-                    # # "sobelAng_std",
-                    # np.std(segmentedAreaDF.values[:, 5]),
-                    # # "robertsAng",
-                    # np.mean(segmentedAreaDF.values[:, 9]),
-                    # # "robertsAng_std",
-                    # np.std(segmentedAreaDF.values[:, 9]),
-                    # "class",
-                    classification,
+            # pegar tamanho pelo nome do arquivo
+            diameter = file[10:-4]
+            for i in range(len(diameter) - 1, -1, -1):
+                if diameter[i] == "-":
+                    diameter = diameter[i + 1 :]
+            diameter = int(diameter)
+            print(diameter)
+
+            if windowSize > diameter:
+                continue
+
+            # iterar pelo dataset varias vezes a fim de pegar os dados de cada janela
+            for windowVerticalIndex in range(int(np.floor(diameter / windowSize))):
+                temp = segmentedAreaDF.values[
+                    diameter * windowVerticalIndex : diameter * windowVerticalIndex
+                    + windowSize * diameter,
+                    :,
                 ]
-            )
+                for windowHorizontalIndex in range(
+                    int(np.floor(diameter / windowSize))
+                ):
+                    subSegmentedArea = []
+                    for verticalIndex in range(windowSize):
+                        subSegmentedArea.append(
+                            segmentedAreaDF.values[
+                                diameter * verticalIndex
+                                + windowSize
+                                * windowHorizontalIndex : diameter
+                                * verticalIndex
+                                + windowSize * windowHorizontalIndex
+                                + windowSize,
+                                :,
+                            ]
+                        )
+                    step = subSegmentedArea[0]
+                    for sub in subSegmentedArea[1:]:
+                        step = np.vstack((step, sub))
+                    subSegmentedArea = step
+
+                    # # gera um valor para cada banda final
+                    result.append(
+                        [
+                            # "raw_std",
+                            np.std(subSegmentedArea[:, 0]),
+                            # "sobelMag",
+                            np.mean(subSegmentedArea[:, 4]),
+                            # # "sobelMag_std",
+                            # np.std(subSegmentedArea[:, 4]),
+                            # "sobelAng",
+                            np.mean(subSegmentedArea[:, 5]),
+                            # "sobelAng_std",
+                            np.std(subSegmentedArea[:, 5]),
+                            # # "robertsAng",
+                            # np.mean(subSegmentedArea[:, 9]),
+                            # # "robertsAng_std",
+                            # np.std(subSegmentedArea[:, 9]),
+                            # # "SaRm4_m",
+                            # np.mean(subSegmentedArea[:, 10]),
+                            # # "SaRm8_m",
+                            # np.mean(subSegmentedArea[:, 11]),
+                            # # "SaRm16_m",
+                            # np.mean(subSegmentedArea[:, 12]),
+                            # # "SaRm32_m",
+                            # np.mean(subSegmentedArea[:, 13]),
+                            # # "SaRm64_m",
+                            # np.mean(subSegmentedArea[:, 14]),
+                            # # "SaRm128_m",
+                            # np.mean(subSegmentedArea[:, 15]),
+                            # "class",
+                            classification,
+                        ]
+                    )
 
     # gera imagem da matriz de resultado
     # header = [a for a in segmentedAreaDF.columns.values]
@@ -69,10 +122,16 @@ def main():
             "raw_std",
             "sobelMag",
             # "sobelMag_std",
-            # "sobelAng",
-            # "sobelAng_std",
+            "sobelAng",
+            "sobelAng_std",
             # "robertsAng",
             # "robertsAng_std",
+            # "SaRm4_m",
+            # "SaRm8_m",
+            # "SaRm16_m",
+            # "SaRm32_m",
+            # "SaRm64_m",
+            # "SaRm128_m",
             "class",
         ]
     )

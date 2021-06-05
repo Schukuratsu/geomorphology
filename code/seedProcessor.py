@@ -1,3 +1,4 @@
+import sys
 from .DEM import DEM
 import cv2
 import numpy as np
@@ -17,12 +18,14 @@ def sobelMag(mat):
     SobelY = cv2.filter2D(mat, cv2.CV_16S, Gy)
     return np.sqrt(np.add(np.square(SobelX), np.square(SobelY)))
 
+
 def sobelAng(mat):
     Gx = np.array([[-1, 0, +1], [-2, 0, +2], [-1, 0, +1]])
     Gy = np.array([[+1, +2, +1], [0, 0, 0], [-1, -2, -1]])
     SobelX = cv2.filter2D(mat, cv2.CV_16S, Gx)
     SobelY = cv2.filter2D(mat, cv2.CV_16S, Gy)
     return np.arctan2(SobelY, SobelX)
+
 
 def prewittMag(mat):
     Gx = np.array([[-1, 0, +1], [-1, 0, +1], [-1, 0, +1]])
@@ -31,6 +34,7 @@ def prewittMag(mat):
     PrewittY = cv2.filter2D(mat, cv2.CV_16S, Gy)
     return np.sqrt(np.add(np.square(PrewittX), np.square(PrewittY)))
 
+
 def prewittAng(mat):
     Gx = np.array([[-1, 0, +1], [-1, 0, +1], [-1, 0, +1]])
     Gy = np.array([[+1, +1, +1], [0, 0, 0], [-1, -1, -1]])
@@ -38,12 +42,23 @@ def prewittAng(mat):
     PrewittY = cv2.filter2D(mat, cv2.CV_16S, Gy)
     return np.arctan2(PrewittY, PrewittX)
 
-def robertsMag(mat):
-    Gx = np.array([[0, +1], [-1, 0]])
-    Gy = np.array([[+1, 0], [0, -1]])
-    RobertsX = cv2.filter2D(mat, cv2.CV_16S, Gx)
-    RobertsY = cv2.filter2D(mat, cv2.CV_16S, Gy)
+
+def robertsMag(mat, window=2):
+    if window % 2 == 1:
+        sys.exit("Error: window param on 'robertsMag' must be even.")
+    half = int(window / 2)
+    ones = np.ones((half, half))
+    mat = np.array(mat,dtype=np.float32)
+    Gx = np.zeros((window, window))
+    Gx[:half, half:] = ones
+    Gx[half:, :half] = -ones
+    Gy = np.zeros((window, window))
+    Gy[:half, :half] = ones
+    Gy[half:, half:] = -ones
+    RobertsX = cv2.filter2D(mat, cv2.CV_32F, Gx)
+    RobertsY = cv2.filter2D(mat, cv2.CV_32F, Gy)
     return np.sqrt(np.add(np.square(RobertsX), np.square(RobertsY)))
+
 
 def robertsAng(mat):
     Gx = np.array([[0, +1], [-1, 0]])
@@ -70,6 +85,32 @@ def laplacian8(mat):
     return filteredMat
 
 
+# composed filters
+
+
+def sobelAngToRoberts4(mat):
+    return robertsMag(sobelAng(mat), 4)
+
+
+def sobelAngToRoberts8(mat):
+    return robertsMag(sobelAng(mat), 8)
+
+
+def sobelAngToRoberts16(mat):
+    return robertsMag(sobelAng(mat), 16)
+
+
+def sobelAngToRoberts32(mat):
+    return robertsMag(sobelAng(mat), 32)
+
+
+def sobelAngToRoberts64(mat):
+    return robertsMag(sobelAng(mat), 64)
+
+def sobelAngToRoberts128(mat):
+    return robertsMag(sobelAng(mat), 128)
+
+
 def showImg(mat, console=True):
     if console:
         print(mat)
@@ -85,8 +126,42 @@ def main():
     seedsFileName = "./assets/seeds/Centroides.csv"
 
     # configurações
-    filters = [raw, laplacianCv2, laplacian4, laplacian8, sobelMag, sobelAng, prewittMag, prewittAng, robertsMag, robertsAng]
-    filterNames = ["raw", "laplacianCv2", "laplacian4", "laplacian8", "sobelMag", "sobelAng", "prewittMag", "prewittAng", "robertsMag", "robertsAng"]
+    filters = [
+        raw,
+        laplacianCv2,
+        laplacian4,
+        laplacian8,
+        sobelMag,
+        sobelAng,
+        prewittMag,
+        prewittAng,
+        robertsMag,
+        robertsAng,
+        sobelAngToRoberts4,
+        sobelAngToRoberts8,
+        sobelAngToRoberts16,
+        sobelAngToRoberts32,
+        sobelAngToRoberts64,
+        sobelAngToRoberts128,
+    ]
+    filterNames = [
+        "raw",
+        "laplacianCv2",
+        "laplacian4",
+        "laplacian8",
+        "sobelMag",
+        "sobelAng",
+        "prewittMag",
+        "prewittAng",
+        "robertsMag",
+        "robertsAng",
+        "sobelAngToRoberts4",
+        "sobelAngToRoberts8",
+        "sobelAngToRoberts16",
+        "sobelAngToRoberts32",
+        "sobelAngToRoberts64",
+        "sobelAngToRoberts128",
+    ]
     seedsIndex = []
 
     # lendo arquivos
