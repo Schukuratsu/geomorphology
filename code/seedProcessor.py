@@ -16,7 +16,13 @@ def sobelMag(mat):
     Gy = np.array([[+1, +2, +1], [0, 0, 0], [-1, -2, -1]])
     SobelX = cv2.filter2D(mat, cv2.CV_16S, Gx)
     SobelY = cv2.filter2D(mat, cv2.CV_16S, Gy)
-    return np.sqrt(np.add(np.square(SobelX), np.square(SobelY)))
+    # ddepth=cv2.CV_16S
+    # ksize=3
+    # borderType=cv2.BORDER_DEFAULT
+    # SobelX = cv2.Sobel(mat, ddepth, 1, 0, ksize=ksize, borderType=borderType)
+    # SobelY = cv2.Sobel(mat, ddepth, 0, 1, ksize=ksize, borderType=borderType)
+    result = np.add(np.multiply(abs(SobelX), 0.5), np.multiply(abs(SobelY), 0.5))
+    return result
 
 
 def sobelAng(mat):
@@ -32,7 +38,8 @@ def prewittMag(mat):
     Gy = np.array([[+1, +1, +1], [0, 0, 0], [-1, -1, -1]])
     PrewittX = cv2.filter2D(mat, cv2.CV_16S, Gx)
     PrewittY = cv2.filter2D(mat, cv2.CV_16S, Gy)
-    return np.sqrt(np.add(np.square(PrewittX), np.square(PrewittY)))
+    result = np.add(np.multiply(abs(PrewittX), 0.5), np.multiply(abs(PrewittY), 0.5))
+    return result
 
 
 def prewittAng(mat):
@@ -48,7 +55,7 @@ def robertsMag(mat, window=2):
         sys.exit("Error: window param on 'robertsMag' must be even.")
     half = int(window / 2)
     ones = np.ones((half, half))
-    mat = np.array(mat,dtype=np.float32)
+    mat = np.array(mat, dtype=np.float32)
     Gx = np.zeros((window, window))
     Gx[:half, half:] = ones
     Gx[half:, :half] = -ones
@@ -106,6 +113,7 @@ def sobelAngToRoberts32(mat):
 
 def sobelAngToRoberts64(mat):
     return robertsMag(sobelAng(mat), 64)
+
 
 def sobelAngToRoberts128(mat):
     return robertsMag(sobelAng(mat), 128)
