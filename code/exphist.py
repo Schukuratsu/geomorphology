@@ -320,7 +320,7 @@ def knn1():
 
 
 def knn2():
-    """gera 3 modelos baseados em elementos diferentes para cada classe"""
+    """gera 3 resultados baseados nos 3 modelos gerados pela função anterior"""
     segmentedAreaFolder = "./assets/segmentedAreas/borderless"
     windowSize = 8
     classesFolder = "./assets/classes/new/exphist/{}".format(windowSize)
