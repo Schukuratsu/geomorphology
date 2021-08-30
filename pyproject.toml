@@ -19,6 +19,12 @@ seed = "code.seedProcessor:main"
 mean = "code.meanExtractor:main"
 k-means = "code.k-means:main"
 graphics = "code.graphics:main"
+exphistregiao1 = "code.exphist:regiao1"
+exphistregiao3 = "code.exphist:regiao3"
+exphistclasses1 = "code.exphist:classes1"
+exphistclasses2 = "code.exphist:classes2"
+exphistclass1 = "code.exphist:class1"
+exphistknn1 = "code.exphist:knn1"
 
 [tool.poetry.dependencies]
 python = "3.8.2"

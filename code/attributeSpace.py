@@ -10,9 +10,9 @@ import seaborn as sns
 def main():
 
     # configurações
-    segmentedAreaFolder = "./assets/segmentedAreas"
+    segmentedAreaFolder = "./assets/segmentedAreas/borderless"
     # tamanho da janela
-    windowSize = 10
+    windowSize = 128
 
     # inicialização do resultado
     result = []
@@ -38,7 +38,11 @@ def main():
             # iterar pelo dataset varias vezes a fim de pegar os dados de cada janela
             for windowVerticalIndex in range(int(np.floor(diameter / windowSize))):
                 temp = segmentedAreaDF.values[
-                    diameter * windowVerticalIndex * windowSize : diameter * windowVerticalIndex * windowSize
+                    diameter
+                    * windowVerticalIndex
+                    * windowSize : diameter
+                    * windowVerticalIndex
+                    * windowSize
                     + windowSize * diameter,
                     :,
                 ]
@@ -65,60 +69,42 @@ def main():
 
                     # # gera um valor para cada banda final
                     result.append(
-                        [
-                            # "raw_std",
-                            np.std(subSegmentedArea[:, 0]),
-                            # "sobelMag",
-                            np.mean(subSegmentedArea[:, 4]),
-                            # # "sobelMag_std",
-                            # np.std(subSegmentedArea[:, 4]),
-                            # "sobelAng",
-                            np.mean(subSegmentedArea[:, 5]),
-                            # "sobelAng_std",
-                            np.std(subSegmentedArea[:, 5]),
-                            # # "robertsAng",
-                            # np.mean(subSegmentedArea[:, 9]),
-                            # # "robertsAng_std",
-                            # np.std(subSegmentedArea[:, 9]),
-                            # # "SaRm4_m",
-                            # np.mean(subSegmentedArea[:, 10]),
-                            # # "SaRm8_m",
-                            # np.mean(subSegmentedArea[:, 11]),
-                            # # "SaRm16_m",
-                            # np.mean(subSegmentedArea[:, 12]),
-                            # # "SaRm32_m",
-                            # np.mean(subSegmentedArea[:, 13]),
-                            # # "SaRm64_m",
-                            # np.mean(subSegmentedArea[:, 14]),
-                            # # "SaRm128_m",
-                            # np.mean(subSegmentedArea[:, 15]),
-                            # "class",
-                            classification,
-                        ]
+                        {
+                            "class": classification,
+
+                            ## MEANS ##
+                            "raw_mean": np.mean(subSegmentedArea[:, 0]),
+
+                            # "laplacianCv2_mean": np.mean(subSegmentedArea[:, 1]),
+                            # "laplacian4_mean": np.mean(subSegmentedArea[:, 2]),
+                            # "laplacian8_mean": np.mean(subSegmentedArea[:, 3]),
+
+                            # "sobelMag_mean": np.mean(subSegmentedArea[:, 4]),
+                            # "prewittMag_mean": np.mean(subSegmentedArea[:, 6]),
+                            "robertsMag_mean": np.mean(subSegmentedArea[:, 8]),
+
+                            # "sobelAng_mean": np.mean(subSegmentedArea[:, 5]),
+                            # "prewittAng_mean": np.mean(subSegmentedArea[:, 7]),
+                            # "robertsAng_mean": np.mean(subSegmentedArea[:, 9]),
+
+                            # ## STDS ##
+                            "raw_std": np.std(subSegmentedArea[:, 0]),
+
+                            "laplacianCv2_std": np.std(subSegmentedArea[:, 1]),
+                            # "laplacian4_std": np.std(subSegmentedArea[:, 2]),
+                            # "laplacian8_std": np.std(subSegmentedArea[:, 3]),
+
+                            # "sobelMag_std": np.std(subSegmentedArea[:, 4]),
+                            # "prewittMag_std": np.std(subSegmentedArea[:, 6]),
+                            # "robertsMag_std": np.std(subSegmentedArea[:, 8]),
+
+                            # "sobelAng_std": np.std(subSegmentedArea[:, 5]),
+                            # "prewittAng_std": np.std(subSegmentedArea[:, 7]),
+                            # "robertsAng_std": np.std(subSegmentedArea[:, 9]),
+                        }
                     )
 
-    # gera imagem da matriz de resultado
-    # header = [a for a in segmentedAreaDF.columns.values]
-    # header.append("class")
-    header = np.array(
-        [
-            "raw_std",
-            "sobelMag",
-            # "sobelMag_std",
-            "sobelAng",
-            "sobelAng_std",
-            # "robertsAng",
-            # "robertsAng_std",
-            # "SaRm4_m",
-            # "SaRm8_m",
-            # "SaRm16_m",
-            # "SaRm32_m",
-            # "SaRm64_m",
-            # "SaRm128_m",
-            "class",
-        ]
-    )
-    resultDF = pd.DataFrame(result, None, header)
+    resultDF = pd.DataFrame(result)
     print(resultDF)
     g = sns.PairGrid(resultDF, hue="class")
     g.map_upper(sns.histplot)

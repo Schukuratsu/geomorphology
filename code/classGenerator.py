@@ -11,7 +11,7 @@ def main():
 
     # configurações
     segmentedAreaFolder = "./assets/segmentedAreas"
-    classesFolder = "./assets/classes/segment"
+    classesFolder = "./assets/classes"
     # tamanho da janela
     windowSizes = [128, 64, 32, 16, 8, 4, 2]
 
@@ -120,6 +120,11 @@ def main():
 
                 if windowSize > diameter:
                     continue
+                        
+                # permite apenas ímpares -> 1010
+                index += 1
+                if index % 2 == 0:
+                    continue
 
                 # iterar pelo dataset varias vezes a fim de pegar os dados de cada janela
                 for windowVerticalIndex in range(int(np.floor(diameter / windowSize))):
@@ -135,11 +140,6 @@ def main():
                     for windowHorizontalIndex in range(
                         int(np.floor(diameter / windowSize))
                     ):
-                        
-                        # permite apenas ímpares -> 1010
-                        index += 1
-                        if index % 2 == 0:
-                            continue
                         
                         subSegmentedArea = []
                         for verticalIndex in range(windowSize):
