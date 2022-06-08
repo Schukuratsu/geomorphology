@@ -25,6 +25,14 @@ exphistclasses1 = "code.exphist:classes1"
 exphistclasses2 = "code.exphist:classes2"
 exphistclass1 = "code.exphist:class1"
 exphistknn1 = "code.exphist:knn1"
+exphistknn1geraTudo = "code.exphist:knn1geraTudo"
+exphistknn2 = "code.exphist:knn2"
+exphistknn2p5 = "code.exphist:knn2ponto5"
+exphistknn2p6 = "code.exphist:knn2ponto6"
+exphistknn2p7 = "code.exphist:knn2ponto7"
+exphistknn3 = "code.exphist:knn3"
+testeSciKit = "code.exphist:testeSciKit"
+geramapa = "code.geraMapa:geraMapa"
 
 [tool.poetry.dependencies]
 python = "3.8.2"
@@ -32,12 +40,12 @@ pandas = "^1.2.3"
 numpy = "^1.20.1"
 GDAL = [
   {file = "packages/GDAL-3.2.3-cp38-cp38-win_amd64.whl"},
-  {file = "packages/GDAL-3.2.3-cp38-cp38-win32.whl"},
 ]
 scipy = "^1.6.2"
 opencv-python = "^4.5.1"
 matplotlib = "^3.3.4"
 seaborn = "^0.11.1"
+scikit-learn = "^0.24.2"
 
 [tool.poetry.dev-dependencies]
 black = "^20.8b1"
