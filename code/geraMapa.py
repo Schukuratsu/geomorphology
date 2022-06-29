@@ -24,8 +24,10 @@ def robertsMag(mat, window=2):
     return np.sqrt(np.add(np.square(RobertsX), np.square(RobertsY)))
 
 def geraMapa():
-    windowSize = 16
-    modelName = "classifier{}_2.joblib".format(windowSize)
+    windowSize = 32
+    seed = 17
+    tag = "{}_{}".format(windowSize, seed)
+    modelName = "classifier{}.joblib".format(tag)
 
     print('abrindo arquivo...')
     dem = DEM("./assets/dems/S028-030_W053-055.tif")
@@ -48,17 +50,23 @@ def geraMapa():
     dem.clear()
     x_map = pd.DataFrame(list)
 
+    x_map["mean"] = np.divide(x_map["mean"].values,np.max(x_map["mean"].values))
+    x_map["std"] = np.divide(x_map["std"],np.max(x_map["std"]))
+    x_map["roberts_mag_mean"] = np.divide(x_map["roberts_mag_mean"],np.max(x_map["roberts_mag_mean"]))
+    x_map["laplacian_cv2_std"] = np.divide(x_map["laplacian_cv2_std"],np.max(x_map["laplacian_cv2_std"]))
+
     print('classificando áreas...')
     modelFile = "./assets/classes/new/exphist/{}/{}".format(windowSize, modelName)
     model = load(modelFile)
     y_map = pd.DataFrame(model.predict(x_map), columns=["classified_as"])
+    y_map_proba = model.predict_proba(x_map)
     print(x_map)
     print(y_map)
 
     print('salvando resultados...')
-    x_map.to_csv("./resultados/geraMapa/{}_x.csv".format(windowSize), index=None)
-    y_map.to_csv("./resultados/geraMapa/{}_y.csv".format(windowSize), index=None)
-    dump(model, "./resultados/geraMapa/{}_model.joblib".format(windowSize))
+    x_map.to_csv("./resultados/geraMapa/{}_x.csv".format(tag), index=None)
+    y_map.to_csv("./resultados/geraMapa/{}_y.csv".format(tag), index=None)
+    dump(model, "./resultados/geraMapa/{}_model.joblib".format(tag))
 
     print('gerando novo mapa...')
     minimapSideSize = round(np.floor(mapSideSize / windowSize))
@@ -76,6 +84,8 @@ def geraMapa():
                 test[y] += 1
             y_line+=1
     print(test)
-    cv2.imwrite("./resultados/geraMapa/{}_map.tif".format(windowSize), minimap)
+    cv2.imwrite("./resultados/geraMapa/{}_map.tif".format(tag), minimap)
 
     print('arquivos resultantes salvos em "/resultados/geraMapa/"')
+
+    print(y_map_proba)

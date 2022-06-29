@@ -711,17 +711,22 @@ def knn2ponto7():
     from sklearn.neighbors import KNeighborsClassifier
     from sklearn.metrics import classification_report, confusion_matrix
     from joblib import dump
-    secret = 2
+    seed = 17
     # for windowSize in [2, 4, 8, 16, 32, 64, 128]:
-    for windowSize in [16]:
+    for windowSize in [32]:
         print("\n\njanela: {}".format(windowSize))
         classesFolder = "./assets/classes/new/exphist/{}".format(windowSize)
 
         # dataset com todos os dados
         dataset = pd.read_csv(os.path.join(classesFolder, "{}.csv".format("geral")))
 
+        dataset["mean"] = np.divide(dataset["mean"].values,np.max(dataset["mean"].values))
+        dataset["std"] = np.divide(dataset["std"],np.max(dataset["std"]))
+        dataset["roberts_mag_mean"] = np.divide(dataset["roberts_mag_mean"],np.max(dataset["roberts_mag_mean"]))
+        dataset["laplacian_cv2_std"] = np.divide(dataset["laplacian_cv2_std"],np.max(dataset["laplacian_cv2_std"]))
+
         # train = pra gerar o modelo; test = pra avaliar o modelo
-        dataset_train, dataset_test = train_test_split(dataset, test_size=0.3)
+        dataset_train, dataset_test = train_test_split(dataset, random_state=seed, test_size=0.3, stratify=dataset["class"].values)
 
         # upsampling do arenito
         arenito_train = dataset_train[dataset_train["class"] == "arenito"]
@@ -730,13 +735,13 @@ def knn2ponto7():
         basalto_test = dataset_test[dataset_test["class"] != "arenito"]
         basalto_train_down = resample(
             basalto_train,
-            random_state=36,
+            random_state=seed,
             n_samples=arenito_train.values.shape[0],
             replace=True,
         )
         basalto_test_down = resample(
             basalto_test,
-            random_state=36,
+            random_state=seed,
             n_samples=arenito_test.values.shape[0],
             replace=True,
         )
@@ -766,7 +771,7 @@ def knn2ponto7():
         x_test = scaler.transform(x_test)
 
         # gera modelo de classificador KNN
-        classifier = KNeighborsClassifier(n_neighbors=5, n_jobs=-1)
+        classifier = KNeighborsClassifier(n_neighbors=50, n_jobs=-1)
         classifier.fit(x_train, y_train)
 
         # gera resultado
@@ -777,7 +782,7 @@ def knn2ponto7():
         print(confusion_matrix(y_test, y_pred))
 
         # salva o modelo
-        dump(classifier, os.path.join(classesFolder, "classifier{}_{}.joblib".format(windowSize, secret)))
+        dump(classifier, os.path.join(classesFolder, "classifier{}_{}.joblib".format(windowSize, seed)))
 
 
 def knn3():
