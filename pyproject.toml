@@ -47,6 +47,7 @@ gdal = {path = "packages/GDAL-3.2.3-cp38-cp38-win_amd64.whl"}
 
 [tool.poetry.dev-dependencies]
 black = "^20.8b1"
+pylint = "^2.14.4"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
