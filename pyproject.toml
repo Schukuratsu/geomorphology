@@ -38,14 +38,12 @@ geramapa = "code.geraMapa:geraMapa"
 python = "3.8.2"
 pandas = "^1.2.3"
 numpy = "^1.20.1"
-GDAL = [
-  {file = "packages/GDAL-3.2.3-cp38-cp38-win_amd64.whl"},
-]
 scipy = "^1.6.2"
 opencv-python = "^4.5.1"
 matplotlib = "^3.3.4"
 seaborn = "^0.11.1"
 scikit-learn = "^0.24.2"
+gdal = {path = "packages/GDAL-3.2.3-cp38-cp38-win_amd64.whl"}
 
 [tool.poetry.dev-dependencies]
 black = "^20.8b1"
